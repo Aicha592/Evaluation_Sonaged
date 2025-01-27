@@ -12,10 +12,29 @@
 
 <body>
     @include('navbar')
+    <div class="d-flex justify-content-start mb-3">
+    <a href="{{ url()->previous() }}"><button type="button" class="btn btn-outline-success" ><i class="fas fa-arrow-left"></i>Retour</button></a>
+    </div>
+    
+    <div class="d-flex justify-content-end mb-3">
+    <a href="{{ route('export.pdf', $user->id) }}" class="btn btn-outline-success my-1">
+    <i class="fas fa-file-pdf"></i> Exporter en PDF
+    </a>
+    </div>
 
     <div class="container">
         <h2 class="my-4">Résultats des Évaluations</h2>
-
+        <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 20px;">
+        @if(isset($user))
+    <p><strong>Collaborateur :</strong> {{ $user->prenom }} {{ $user->nom }}</p>
+@else
+    <p>L'utilisateur n'a pas été trouvé.</p>
+@endif
+            <p><strong>Évalué par :</strong> {{ Auth::user()->prenom }} {{ Auth::user()->nom }}</p>
+            <p><strong>Date de l'Évaluation :</strong> {{ now()->format('d/m/Y') }}</p>
+            <p><strong>Score Total :</strong> {{ $scoreTotal }}</p>
+            <hr>
+        </div>
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}

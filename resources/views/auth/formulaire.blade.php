@@ -40,6 +40,7 @@
 
 <body>
     @include('navbar')
+    <a href="{{ url()->previous() }}"><button type="button" class="btn btn-outline-success" ><i class="fas fa-arrow-left"></i>Retour</button></a>
 <!-- <nav class="navbar navbar-light bg-light">
   <div class="container">
     <a class="navbar-brand" href="{{route('index')}}">
@@ -116,7 +117,7 @@
                 </tr>
                 <tr>
                     <td style="text_align: right"><strong>Score Total</strong></td>
-                    <td colspan="4" id="totalPonctualite"><strong>0</strong></td>
+                    <td colspan="4" id="totalPonctualite"><strong>0/10</strong></td>
                     <input type="text" id="totalPonctualiteInput" name="score1" hidden>
                 </tr>
             </tbody>
@@ -230,7 +231,7 @@
                 </tr>
                 <tr>
                     <td><strong>Score Total</strong></td>
-                    <td colspan="4" id="totalAutonomieInitiative"><strong>0</strong></td>
+                    <td colspan="4" id="totalAutonomieInitiative"><strong>0/20</strong></td>
                     <input type="text" id="totalAutonomieInitiativeInput" name="score2" hidden>
                 </tr>
             </tbody>
@@ -348,7 +349,7 @@
                 </tr>
                 <tr>
                     <td><strong>Score Total</strong></td>
-                    <td colspan="4" id="totalProfessionnalisme">0</td>
+                    <td colspan="4" id="totalProfessionnalisme"><strong>0/40</strong></td>
                     <input type="text" id="totalProfessionnalismeInput" name="score3" hidden>
                 </tr>
             </tbody>
@@ -402,7 +403,7 @@
 
                 <tr>
                     <td><strong>Score Total</strong></td>
-                    <td colspan="4" id="totalPersévérance"><strong>0</strong></td>
+                    <td colspan="4" id="totalPersévérance"><strong>0/5</strong></td>
                     <input type="text" id="totalPersévéranceInput" name="score4" hidden>
                 </tr>
             </tbody>
@@ -483,7 +484,7 @@
 
                 <tr>
                     <td><strong>Score Total</strong></td>
-                    <td colspan="4" id="totalAdaptationFléxibilité"><strong>0</strong></td>
+                    <td colspan="4" id="totalAdaptationFléxibilité"><strong>0/5</strong></td>
                     <input type="text" id="totalAdaptationFléxibilitéInput" name="score5" hidden>
                 </tr>
             </tbody>
@@ -539,7 +540,7 @@
 
                 <tr>
                     <td><strong>Score Total</strong></td>
-                    <td colspan="4" id="totalTravailEquipe"><strong>0</strong></td>
+                    <td colspan="4" id="totalTravailEquipe"><strong>0/10</strong></td>
                     <input type="text" id="totalTravailEquipeInput" name="score6" hidden>
                 </tr>
             </tbody>
@@ -611,7 +612,7 @@
 
                 <tr>
                     <td><strong>Score Total</strong></td>
-                    <td colspan="4" id="totalHonnêtétéIntégrité"><strong>0</strong></td>
+                    <td colspan="4" id="totalHonnêtétéIntégrité"><strong>0/10</strong></td>
                     <input type="text" id="totalHonnêtétéIntégritéInput" name="score7" hidden>
                 </tr>
             </tbody>
@@ -657,7 +658,7 @@
                 const tables = ['Ponctualite', 'AutonomieInitiative','Professionnalisme','Persévérance','AdaptationFléxibilité','TravailEquipe' , 'HonnêtétéIntégrité'];
                 for (const table of tables) {
                     const inputs = document.querySelectorAll(`#${table} input[type="radio"]:checked`);
-                    if (inputs.length < 4) { // Assurez-vous que toutes les questions ont une réponse
+                    if (inputs.length < 4) { 
                         alert('Veuillez répondre à toutes les questions avant de soumettre.');
                         return false;
                     }

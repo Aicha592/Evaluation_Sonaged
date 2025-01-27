@@ -10,14 +10,17 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
 
     <title>Evaluation SONAGED</title>
 </head>
 
 <body>
     @include('navbar')
+    
 
-    <div class="container d-flex justify-content-center align-items-center" style="width: 100%; min-height: 80vh;">
+    <div class="container d-flex justify-content-center align-items-center" style="width: 100%; min-height: 80vh;">       
         <div class="card p-4" style="width: 100%;">
             <center>
                 <h5>Liste des collaborateurs</h5>
@@ -77,8 +80,8 @@
                                     @else
                                         <!-- Sinon, afficher un texte -->
                                         <!-- <span class="text-muted">Évalué</span> -->
-                                        <a href="{{ route('form', ['id' => $collaborateur->id]) }}"
-                                        class="btn btn-success">Réévaluer</a>
+                                        <a href="#"
+                                        class="btn btn-success" onclick="confirmReevaluation(event, '{{ route('form', ['id' => $collaborateur->id]) }}')">Réévaluer</a>
                                     @endif
                                 </td>
                             </tr>
@@ -91,8 +94,35 @@
         </div>
     </div>
 
+    <script>
+    function confirmReevaluation(event, url) {
+        // Empêche le comportement par défaut du lien
+        event.preventDefault();
+
+        // Affiche la popup de confirmation
+        Swal.fire({
+            title: 'Confirmer la réévaluation',
+            text: 'Voulez-vous vraiment réévaluer ce collaborateur ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, réévaluer',
+            cancelButtonText: 'Annuler'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Si l'utilisateur confirme, redirige vers l'URL
+                window.location.href = url;
+            }
+        });
+    }
+</script>
+
+
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>

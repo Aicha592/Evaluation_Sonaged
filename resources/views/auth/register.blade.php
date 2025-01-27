@@ -49,6 +49,8 @@
                             <option value="" disabled selected>Choisissez un type</option>
                             <option value="evaluateur">Evaluateur</option>
                             <option value="collaborateur">Collaborateur</option>
+                            <option value="admin">Admin</option>
+
                         </select>
                     </div>
                     <div class="form-group" id="password-group">

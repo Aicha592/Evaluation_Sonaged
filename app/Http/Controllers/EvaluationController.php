@@ -13,7 +13,7 @@ class EvaluationController extends Controller
     {
         $collaborateurs = User::all()->where("type_utilisateur", 'collaborateur');
         // dd($collaborateurs);
-        return view('index', compact('collaborateurs'));
+        return view('auth.index', compact('collaborateurs'));
     }
 
     public function formCollaborator(Request $request)
@@ -30,7 +30,7 @@ class EvaluationController extends Controller
         $user->matricule = $validated['matricule']; 
         $user->type_utilisateur = $request->input('type_utilisateur'); 
 
-        // Sauvegarde de l'utilisateur dans la base de données
+        
         $user->save();
 
         $evaluateurs = $request->all();
@@ -41,6 +41,8 @@ class EvaluationController extends Controller
 
     public function Calcul(Request $request)
     {
+
+        
         $evaluateur_id = $request->input('evaluateur_id');
         $date_evaluation = date('Y/m/d');
         $collaborateur_id = $request->input('collaborateur_id');
@@ -121,6 +123,7 @@ class EvaluationController extends Controller
 
         $scoreTotal = $ponctualiteScore+$AutonomieInitiativeScore+$AdaptationFléxibilitéScore+$honneteteIntegrationScore+$TravailEquipeScore+$ProfessionnalismeScore+$PersévéranceScore;
     
+        // Insérer toutes les évaluations en une seule requête
         DB::table('evaluations')->insert($evaluations);
 
         return view('resultats', compact('evaluations', 'scoreTotal'))->with('success', 'Formulaire rempli avec succès!');

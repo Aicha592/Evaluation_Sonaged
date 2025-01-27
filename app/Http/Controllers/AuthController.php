@@ -15,14 +15,13 @@ class AuthController extends Controller
     public function index()
     {
         $collaborateurs = User::all()->where("type_utilisateur", 'collaborateur');
-
         $collaborateurScores = [];
-
+    
         foreach ($collaborateurs as $collaborateur) {
             $evaluations = $collaborateur->collaborateur;
-
+    
             $scoreTotal = 0;
-
+    
             if ($evaluations->count() > 0) {
                 $ponctualiteScore = $evaluations[0]->score;
                 $AutonomieInitiativeScore = $evaluations[1]->score;
@@ -31,17 +30,21 @@ class AuthController extends Controller
                 $AdaptationFléxibilitéScore = $evaluations[4]->score;
                 $TravailEquipeScore = $evaluations[5]->score;
                 $honneteteIntegrationScore = $evaluations[6]->score;
-
+    
                 $scoreTotal = $ponctualiteScore + $AutonomieInitiativeScore + $AdaptationFléxibilitéScore + $honneteteIntegrationScore + $TravailEquipeScore + $ProfessionnalismeScore + $PersévéranceScore;
             }
-
+    
             $collaborateurScores[$collaborateur->id] = $scoreTotal;
         }
-
+    
+        // Si l'utilisateur est un administrateur, donnez accès à plus d'informations
+        // if (auth()->user()->type_utilisateur === 'admin' || auth()->user()->type_utilisateur === 'evaluateur') {
+        //     return view('auth.index', compact('collaborateurs', 'collaborateurScores'));
+        // }
+    
         return view('auth.index', compact('collaborateurs', 'collaborateurScores'));
     }
-
-
+    
 
     public function showLoginForm()
     {
@@ -49,28 +52,30 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'matricule' => 'required|string',
-            'password' => 'required|string',
-        ]);
+{
+    $credentials = $request->validate([
+        'matricule' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-        if (Auth::attempt($credentials)) {
+    if (Auth::attempt($credentials)) {
 
-            if (auth()->user()->type_utilisateur === 'evaluateur') {
-                return redirect()->intended('index')->with('success', 'Connexion réussie');
-            }
+        // Redirection selon le type d'utilisateur
+        if (auth()->user()->type_utilisateur === 'evaluateur' || auth()->user()->type_utilisateur === 'admin') {
+            return redirect()->intended('')->with('success', 'Connexion réussie');
+        } 
 
-            Auth::logout();
-            return back()->withErrors([
-                'matricule' => 'Seuls les utilisateurs de type évaluateurs peuvent se connecter.',
-            ]);
-        }
-
+        Auth::logout();
         return back()->withErrors([
-            'matricule' => 'Matricule ou mot de passe incorrect',
+            'matricule' => 'Seuls les utilisateurs de type évaluateurs ou administrateurs peuvent se connecter.',
         ]);
     }
+
+    return back()->withErrors([
+        'matricule' => 'Matricule ou mot de passe incorrect',
+    ]);
+}
+
 
 
     public function formCollaborator($id)
@@ -81,6 +86,8 @@ class AuthController extends Controller
 
     public function Calcul(Request $request)
     {
+        $user = User::find($request->collaborateur_id);
+
         $evaluateur_id = $request->input('evaluateur_id');
         $date_evaluation = date('Y/m/d');
         $collaborateur_id = $request->input('collaborateur_id');
@@ -172,9 +179,16 @@ class AuthController extends Controller
 
         $scoreTotal = $ponctualiteScore + $AutonomieInitiativeScore + $AdaptationFléxibilitéScore + $honneteteIntegrationScore + $TravailEquipeScore + $ProfessionnalismeScore + $PersévéranceScore;
 
-        DB::table('evaluations')->insert($evaluations);
-
-        return view('auth.resultats', compact('evaluations', 'scoreTotal'))->with('success', 'Formulaire rempli avec succès!');
+        if (auth()->user()->type_utilisateur === 'admin' || auth()->user()->type_utilisateur === 'evaluateur') {
+            // La logique d'insertion d'évaluation
+            DB::table('evaluations')->insert($evaluations);
+    
+            return view('auth.resultats', compact('evaluations', 'scoreTotal', 'user' ))->with('success', 'Formulaire rempli avec succès!');
+        }
+    
+        return back()->withErrors([
+            'error' => 'Vous n\'êtes pas autorisé à effectuer cette évaluation.',
+        ]);
     }
 
     public function detail($id)
@@ -255,46 +269,50 @@ class AuthController extends Controller
 
     // Gérer l'inscription
     public function register(Request $request)
-    {
-        $rules = [
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'fonction' => 'required|string|max:255',
-            'matricule' => 'required|string|max:255|unique:users',
-            'type_utilisateur' => 'required|in:evaluateur,collaborateur',
-        ];
+{
+    $rules = [
+        'nom' => 'required|string|max:255',
+        'prenom' => 'required|string|max:255',
+        'fonction' => 'required|string|max:255',
+        'matricule' => 'required|string|max:255|unique:users',
+        'type_utilisateur' => 'required|in:evaluateur,collaborateur,admin',  // Ajouter admin ici
+    ];
 
-        if ($request->type_utilisateur !== 'collaborateur') {
-            $rules['password'] = 'required|string|min:8|confirmed';
-        }
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        $userData = [
-            'nom' => $request->nom,
-            'prenom' => $request->prenom,
-            'matricule' => $request->matricule,
-            'fonction' => $request->fonction,
-            'type_utilisateur' => $request->type_utilisateur,
-        ];
-
-        if ($request->type_utilisateur !== 'collaborateur') {
-            $userData['password'] = Hash::make($request->password);
-        }
-
-        User::create($userData);
-
-        return redirect()->route('login')->with('success', 'Inscription réussie. Connectez-vous !');
+    if ($request->type_utilisateur !== 'collaborateur') {
+        $rules['password'] = 'required|string|min:8|confirmed';
     }
 
+    $validator = Validator::make($request->all(), $rules);
 
-    public function logout()
+    if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput();
+    }
+
+    $userData = [
+        'nom' => $request->nom,
+        'prenom' => $request->prenom,
+        'matricule' => $request->matricule,
+        'fonction' => $request->fonction,
+        'type_utilisateur' => $request->type_utilisateur,
+    ];
+
+    if ($request->type_utilisateur !== 'collaborateur') {
+        $userData['password'] = Hash::make($request->password);
+    }
+
+    User::create($userData);
+
+    return redirect()->route('login')->with('success', 'Inscription réussie. Connectez-vous !');
+}
+
+
+    
+
+public function logout()
     {
         Auth::logout();
         return redirect()->route('login')->with('success', 'Déconnexion réussie');
     }
+
+
 }
